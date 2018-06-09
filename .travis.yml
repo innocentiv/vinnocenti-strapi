@@ -1,0 +1,17 @@
+sudo: required
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_78e1e3f72662_key -iv $encrypted_78e1e3f72662_iv -in cert.tar.enc -out cert.tar -d
+  - tar xvf cert.tar
+
+script:
+  - docker --tlsverify --tlscacert=ca.pem --tlscert=cert.pem --tlskey=key.pem  -H=vinnocenti.com:2376 stack deploy -c docker-compose.yml traefik
+

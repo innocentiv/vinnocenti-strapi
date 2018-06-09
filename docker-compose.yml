@@ -1,0 +1,42 @@
+version: "3.6"
+
+services:
+  api:
+    image: strapi/strapi
+    environment:
+      - APP_NAME=strapi-app
+      - DATABASE_CLIENT=mongo
+      - DATABASE_HOST=db
+      - DATABASE_PORT=27017
+      - DATABASE_NAME=strapi
+      - DATABASE_USERNAME=${MONGO_USER}
+      - DATABASE_PASSWORD=${MONGO_PASSWORD}
+      - HOST=strapi.vinnocenti.com
+    deploy:
+      labels:
+        - "traefik.strapi.port=1337"
+        - "traefik.docker.network=traefik_web"
+        - "traefik.frontend.rule=Host:strapi.vinnocenti.com"
+    volumes:
+      - ./strapi-app:/usr/src/api/strapi-app
+      - /usr/src/api/strapi-app/node_modules
+    depends_on:
+      - db
+    restart: always
+    networks:
+      - web
+
+  db:
+    image: mongo
+    environment:
+      - MONGO_INITDB_DATABASE=strapi
+    volumes:
+      - ./db:/data/db
+    restart: always
+    networks:
+      - web
+
+networks:
+  web:
+    external:
+      name: traefik_web

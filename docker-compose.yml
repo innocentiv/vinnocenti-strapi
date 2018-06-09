@@ -13,16 +13,17 @@ services:
       - DATABASE_PASSWORD=${MONGO_PASSWORD}
       - HOST=strapi.vinnocenti.com
     deploy:
+      restart_policy:
+        condition: on-failure
       labels:
         - "traefik.strapi.port=1337"
         - "traefik.docker.network=traefik_web"
         - "traefik.frontend.rule=Host:strapi.vinnocenti.com"
     volumes:
-      - ./strapi-app:/usr/src/api/strapi-app
+      - /opt/strapi-app:/usr/src/api/strapi-app
       - /usr/src/api/strapi-app/node_modules
     depends_on:
       - db
-    restart: always
     networks:
       - web
 
@@ -30,9 +31,11 @@ services:
     image: mongo
     environment:
       - MONGO_INITDB_DATABASE=strapi
+    deploy:
+      restart_policy:
+        condition: on-failure
     volumes:
-      - ./db:/data/db
-    restart: always
+      - /opt/mongo/db:/data/db
     networks:
       - web
 
